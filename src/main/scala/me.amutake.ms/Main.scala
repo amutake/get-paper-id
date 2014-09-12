@@ -5,21 +5,36 @@ import scala.collection.JavaConversions._
 
 import arisa.backend.microsoftacademic.api
 
-object Main extends App {
+object Main {
 
-  val config = ConfigFactory.load()
+  def main(args: Array[String]) = {
 
-  val confIds = config.getIntList("papers.conf")
-  val jourIds = config.getIntList("papers.journal")
+    val config = ConfigFactory.load()
 
-  val paperIdsFromConfs = confIds.map { id =>
-    api.Paper(Map("ConfID" -> id)).map(_.id)
-  }.flatten.toSet
-  val paperIdsFromJournals = jourIds.map { id =>
-    api.Paper(Map("JourID" -> id)).map(_.id)
-  }.flatten.toSet
+    val confIds = config.getIntList("papers.conf")
+    val jourIds = config.getIntList("papers.journal")
 
-  val paperIds: Set[Int] = paperIdsFromConfs ++ paperIdsFromJournals
+    val paperIdsFromConfs = confIds.map { id =>
+      api.Paper(Map("ConfID" -> id)).map(_.id)
+    }.flatten.toSet
+    val paperIdsFromJournals = jourIds.map { id =>
+      api.Paper(Map("JourID" -> id)).map(_.id)
+    }.flatten.toSet
 
-  println(paperIds.toSeq.sorted.mkString("[", ",", "]"))
+    val paperIds: Set[Int] = paperIdsFromConfs ++ paperIdsFromJournals
+    val str = paperIds.toSeq.sorted.mkString("[", ",", "]")
+
+    if (args.isEmpty) {
+      println("[NOTICE] If you want to save to a file, please specify filename as argument.")
+      println(str)
+    } else {
+
+      import java.io.PrintWriter
+
+      val filename = args(0)
+      val file = new PrintWriter(filename)
+      file.println(str)
+      file.close
+    }
+  }
 }

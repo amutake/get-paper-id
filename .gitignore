@@ -5,5 +5,5 @@
 /project/target/
 /target/
 
-metadata.csv
+*.txt
 application.conf
